@@ -17,6 +17,7 @@ use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\server\CommandEvent;
 use pocketmine\plugin\PluginBase;
 use function in_array;
+use function var_dump;
 
 
 class Main extends PluginBase implements Listener {
@@ -78,8 +79,14 @@ class Main extends PluginBase implements Listener {
         foreach($matches[0] as $index => $match){
             if(isset(self::$selectors[$matches[1][$index]])){ // Does the selector exist?
 
-                if (isset(MiezeMC::getInstance()->selectorBlockedCmds[self::$selectors[$matches[1][$index]]])
-                && in_array($m, MiezeMC::getInstance()->selectorBlockedCmds[self::$selectors[$matches[1][$index]]])) return false;
+                var_dump(self::$selectors[$matches[1][$index]]);
+                var_dump(MiezeMC::getInstance()->selectorBlockedCmds);
+
+                $selector = '@' . $matches[1][$index];
+                var_dump($selector);
+                $blockedCmds = MiezeMC::getInstance()->selectorBlockedCmds;
+                if ((in_array($selector, $blockedCmds) || isset($blockedCmds[$selector]))
+                && (in_array($m, MiezeMC::getInstance()->selectorBlockedCmds[$selector])) || isset($blockedCmds[$selector][$m])) return false;
 
                 // Search for the parameters
                 $params = self::$selectors[$matches[1][$index]]->acceptsModifiers() ? $this->checkArgParams($matches, $index): [];
