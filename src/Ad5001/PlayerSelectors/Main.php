@@ -16,7 +16,9 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\server\CommandEvent;
 use pocketmine\plugin\PluginBase;
+use function explode;
 use function in_array;
+use function print_r;
 use function var_dump;
 
 
@@ -83,10 +85,13 @@ class Main extends PluginBase implements Listener {
                 var_dump(MiezeMC::getInstance()->selectorBlockedCmds);
 
                 $selector = '@' . $matches[1][$index];
-                var_dump($selector);
+                $realCmd = explode(' ', $m)[0];
                 $blockedCmds = MiezeMC::getInstance()->selectorBlockedCmds;
-                if ((in_array($selector, $blockedCmds) || isset($blockedCmds[$selector]))
-                && (in_array($m, MiezeMC::getInstance()->selectorBlockedCmds[$selector])) || isset($blockedCmds[$selector][$m])) return false;
+
+                if (isset($blockedCmds[$selector]) && in_array($realCmd, $blockedCmds[$selector])) {
+                    $sender->sendMessage(MiezeMC::PREFIX . "§7Dieser Command akzeptiert den Selektor §e" . $selector . "§7 nicht!");
+                    return false;
+                }
 
                 // Search for the parameters
                 $params = self::$selectors[$matches[1][$index]]->acceptsModifiers() ? $this->checkArgParams($matches, $index): [];
@@ -98,7 +103,7 @@ class Main extends PluginBase implements Listener {
                         $newCommandsToExecute[] = substr_replace($cmd, " \"" . $selectorStr . "\" ", strpos($cmd, $match), strlen($match));
                     }
                     if(count($newCommandsToExecute) == 0) {
-                        $sender->sendMessage("§cYour selector $match (" . self::$selectors[$matches[1][$indexB]]->getName() . ") did not match any player/entity.");
+                        $sender->sendMessage("§cDein Selektor $match (" . self::$selectors[$matches[1][$indexB]]->getName() . ") konnte keinen Spieler finden.");
                         return true;
                     }
                 }
